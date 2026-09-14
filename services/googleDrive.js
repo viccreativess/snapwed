@@ -3,8 +3,7 @@ const { Readable } = require('stream');
 const fs = require('fs');
 const path = require('path');
 
-// Token storage path (persisted across restarts)
-const TOKEN_PATH = path.join(__dirname, '..', 'data', 'google_token.json');
+const Config = require('../models/Config');
 
 function getOAuthClient() {
   return new google.auth.OAuth2(
@@ -14,34 +13,34 @@ function getOAuthClient() {
   );
 }
 
-function loadTokens() {
-  try {
-    if (fs.existsSync(TOKEN_PATH)) {
-      return JSON.parse(fs.readFileSync(TOKEN_PATH, 'utf8'));
-    }
-  } catch (e) {}
-  return null;
+async function loadTokens() {
+  const config = await Config.findOne({ key: 'google_token' });
+  return config ? config.value : null;
 }
 
-function saveTokens(tokens) {
-  fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
+async function saveTokens(tokens) {
+  await Config.findOneAndUpdate(
+    { key: 'google_token' },
+    { value: tokens },
+    { upsert: true, new: true }
+  );
 }
 
-function getAuthedClient() {
-  const tokens = loadTokens();
+async function getAuthedClient() {
+  const tokens = await loadTokens();
   if (!tokens) throw new Error('Google Drive not connected. Please authorize in the admin panel.');
   const auth = getOAuthClient();
   auth.setCredentials(tokens);
   // Auto-refresh tokens when expired
-  auth.on('tokens', (newTokens) => {
-    const current = loadTokens() || {};
-    saveTokens({ ...current, ...newTokens });
+  auth.on('tokens', async (newTokens) => {
+    const current = await loadTokens() || {};
+    await saveTokens({ ...current, ...newTokens });
   });
   return auth;
 }
 
-function getDrive() {
-  const auth = getAuthedClient();
+async function getDrive() {
+  const auth = await getAuthedClient();
   return google.drive({ version: 'v3', auth });
 }
 
@@ -59,18 +58,18 @@ function getAuthUrl() {
 async function exchangeCodeForTokens(code) {
   const auth = getOAuthClient();
   const { tokens } = await auth.getToken(code);
-  saveTokens(tokens);
+  await saveTokens(tokens);
   return tokens;
 }
 
-function isConnected() {
-  return loadTokens() !== null;
+async function isConnected() {
+  return (await loadTokens()) !== null;
 }
 
 // ─── Folder Management ─────────────────────────────────────────────────────
 
 async function ensureFolder(folderName, parentId = null) {
-  const drive = getDrive();
+  const drive = await getDrive();
   const escapedName = folderName.replace(/'/g, "\\'");
   const query = [
     `name = '${escapedName}'`,
@@ -101,7 +100,7 @@ async function getOrCreateEventFolder(eventName) {
 // ─── Upload ────────────────────────────────────────────────────────────────
 
 async function uploadFile({ buffer, originalname, mimetype, eventName }) {
-  const drive = getDrive();
+  const drive = await getDrive();
   const folderId = await getOrCreateEventFolder(eventName);
 
   const readable = new Readable();
@@ -132,7 +131,7 @@ async function uploadFile({ buffer, originalname, mimetype, eventName }) {
 // ─── List Files ────────────────────────────────────────────────────────────
 
 async function listEventFiles(eventName) {
-  const drive = getDrive();
+  const drive = await getDrive();
   let folderId;
   try {
     folderId = await getOrCreateEventFolder(eventName);
@@ -165,7 +164,7 @@ async function listEventFiles(eventName) {
 // ─── Stream / Proxy ────────────────────────────────────────────────────────
 
 async function streamFile(fileId, res) {
-  const drive = getDrive();
+  const drive = await getDrive();
   const meta = await drive.files.get({ fileId, fields: 'mimeType, name' });
   res.setHeader('Content-Type', meta.data.mimeType);
   res.setHeader('Cache-Control', 'public, max-age=86400');

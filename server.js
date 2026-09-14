@@ -53,13 +53,24 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-// ─── Data Dir Guard ────────────────────────────────────────────────────────
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-const eventsFile = path.join(dataDir, 'events.json');
-if (!fs.existsSync(eventsFile)) fs.writeFileSync(eventsFile, '[]');
+// ─── Database & Server Start ───────────────────────────────────────────────
+const mongoose = require('mongoose');
 
-app.listen(PORT, () => {
-  console.log(`\n🎉 SnapWed running at http://localhost:${PORT}`);
-  console.log(`   Admin panel: http://localhost:${PORT}/admin\n`);
-});
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error('❌ MONGODB_URI is not set. Please set it in your environment variables.');
+  process.exit(1);
+}
+
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    app.listen(PORT, () => {
+      console.log(`\n🎉 SnapWed running at http://localhost:${PORT}`);
+      console.log(`   Admin panel: http://localhost:${PORT}/admin\n`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+  });

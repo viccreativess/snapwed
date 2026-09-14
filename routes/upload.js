@@ -19,26 +19,16 @@ const upload = multer({
   },
 });
 
-const EVENTS_FILE = path.join(__dirname, '..', 'data', 'events.json');
-
-function readEvents() {
-  try { return JSON.parse(fs.readFileSync(EVENTS_FILE, 'utf8')); }
-  catch (e) { return []; }
-}
-
-function writeEvents(events) {
-  fs.writeFileSync(EVENTS_FILE, JSON.stringify(events, null, 2));
-}
+const Event = require('../models/Event');
 
 // POST /api/upload/:eventId — guests upload photos + guestbook entry
 router.post('/:eventId', upload.array('photos', 20), async (req, res) => {
   try {
     const { eventId } = req.params;
-    const events = readEvents();
-    const event = events.find((e) => e.id === eventId);
+    const event = await Event.findOne({ id: eventId });
     if (!event) return res.status(404).json({ error: 'Event not found' });
 
-    if (!drive.isConnected()) {
+    if (!(await drive.isConnected())) {
       return res.status(503).json({ error: 'Google Drive not connected yet. Please contact the event host.' });
     }
 
@@ -73,7 +63,7 @@ router.post('/:eventId', upload.array('photos', 20), async (req, res) => {
 
     if (!event.guestbook) event.guestbook = [];
     event.guestbook.push(entry);
-    writeEvents(events);
+    await event.save();
 
     res.json({
       success: true,
@@ -87,9 +77,8 @@ router.post('/:eventId', upload.array('photos', 20), async (req, res) => {
 });
 
 // GET /api/upload/:eventId/info — public event info (name, couple names)
-router.get('/:eventId/info', (req, res) => {
-  const events = readEvents();
-  const event = events.find((e) => e.id === req.params.eventId);
+router.get('/:eventId/info', async (req, res) => {
+  const event = await Event.findOne({ id: req.params.eventId });
   if (!event) return res.status(404).json({ error: 'Event not found' });
   res.json({
     id: event.id,

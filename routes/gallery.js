@@ -4,21 +4,15 @@ const path = require('path');
 const fs = require('fs');
 const drive = require('../services/googleDrive');
 
-const EVENTS_FILE = path.join(__dirname, '..', 'data', 'events.json');
-
-function readEvents() {
-  try { return JSON.parse(fs.readFileSync(EVENTS_FILE, 'utf8')); }
-  catch (e) { return []; }
-}
+const Event = require('../models/Event');
 
 // GET /api/gallery/:eventId — returns list of photos from Drive
 router.get('/:eventId', async (req, res) => {
   try {
-    const events = readEvents();
-    const event = events.find((e) => e.id === req.params.eventId);
+    const event = await Event.findOne({ id: req.params.eventId });
     if (!event) return res.status(404).json({ error: 'Event not found' });
 
-    if (!drive.isConnected()) {
+    if (!(await drive.isConnected())) {
       return res.json({ photos: [], guestbook: [] });
     }
 
