@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Share Your Photos — SnapWed</title>
+  <meta name="description" content="Upload your wedding photos instantly. No app download needed." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/upload/style.css" />
+</head>
+<body>
+  <!-- Background blobs -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+
+  <div id="app">
+    <!-- Loading screen -->
+    <div id="loading-screen" class="screen active">
+      <div class="loader-ring"></div>
+    </div>
+
+    <!-- Upload screen -->
+    <div id="upload-screen" class="screen">
+      <header class="upload-header">
+        <div class="couple-badge">
+          <span class="heart">♥</span>
+          <span id="couple-names" class="couple-names">Loading…</span>
+        </div>
+        <h1 id="welcome-msg" class="welcome-title">Share your photos!</h1>
+        <p class="welcome-sub">Your moment becomes part of their story ✨</p>
+      </header>
+
+      <main class="upload-main">
+        <!-- Drop zone -->
+        <div id="drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="Tap to select photos">
+          <div class="drop-zone-inner">
+            <div class="drop-icon">📷</div>
+            <p class="drop-title">Tap to add photos</p>
+            <p class="drop-sub">or drag & drop · up to 20 at once</p>
+            <span class="drop-btn">Choose Photos</span>
+          </div>
+          <input type="file" id="file-input" accept="image/*" multiple hidden />
+        </div>
+
+        <!-- Preview grid -->
+        <div id="preview-grid" class="preview-grid hidden"></div>
+
+        <!-- Guestbook fields -->
+        <div class="guestbook-card">
+          <h2 class="guestbook-title">Leave a message 💌</h2>
+          <div class="field-group">
+            <label for="guest-name">Your name</label>
+            <input type="text" id="guest-name" placeholder="e.g. Sarah & Tom" maxlength="60" autocomplete="name" />
+          </div>
+          <div class="field-group">
+            <label for="guest-message">Message to the couple (optional)</label>
+            <textarea id="guest-message" placeholder="Wishing you a lifetime of love and laughter! 🥂" rows="3" maxlength="400"></textarea>
+          </div>
+        </div>
+
+        <!-- Upload button -->
+        <button id="upload-btn" class="upload-btn" disabled>
+          <span id="btn-text">Select photos first</span>
+          <div id="btn-spinner" class="btn-spinner hidden"></div>
+        </button>
+      </main>
+    </div>
+
+    <!-- Success screen -->
+    <div id="success-screen" class="screen">
+      <div class="success-content">
+        <div class="success-emoji">🎉</div>
+        <h2 class="success-title">Photos shared!</h2>
+        <p id="success-sub" class="success-sub">Thank you for sharing this moment.</p>
+        <button id="upload-more-btn" class="upload-btn">Upload more photos</button>
+        <a id="view-gallery-link" href="#" class="gallery-link">View the full gallery →</a>
+      </div>
+    </div>
+
+    <!-- Error screen -->
+    <div id="error-screen" class="screen">
+      <div class="error-content">
+        <div class="error-emoji">😕</div>
+        <h2>Something went wrong</h2>
+        <p id="error-msg"></p>
+        <button onclick="location.reload()" class="upload-btn">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/upload/app.js"></script>
+</body>
+</html>

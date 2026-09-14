@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SnapWed — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/style.css" />
+</head>
+<body>
+
+<!-- ═══ LOGIN MODAL ════════════════════════════════════════════════════════ -->
+<div id="login-overlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-icon">💍</span>
+      <h1 class="logo-text">SnapWed</h1>
+    </div>
+    <h2 class="login-title">Admin Login</h2>
+    <p class="login-sub">Enter your admin password to continue</p>
+    <div id="login-error" class="login-error hidden">Incorrect password. Please try again.</div>
+    <form id="login-form">
+      <div class="field-group">
+        <label for="password-input">Password</label>
+        <input type="password" id="password-input" placeholder="Enter admin password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn-primary full-width" id="login-btn">
+        <span id="login-btn-text">Login</span>
+        <div class="btn-spinner hidden" id="login-spinner"></div>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══════════════════════════════════════════════════════════ -->
+<div id="main-app" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-icon">💍</span>
+      <span class="logo-text">SnapWed</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="events" id="nav-events">
+        <span class="nav-icon">🎉</span>
+        <span>Events</span>
+      </button>
+      <button class="nav-item" data-view="event-detail" id="nav-detail" style="display:none">
+        <span class="nav-icon">📸</span>
+        <span id="nav-detail-label">Event</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div id="drive-status-badge" class="drive-badge disconnected">
+        <span id="drive-status-icon">🔴</span>
+        <span id="drive-status-text">Drive disconnected</span>
+      </div>
+      <button id="connect-drive-btn" class="btn-outline btn-sm" style="margin-top:8px;width:100%">Connect Google Drive</button>
+      <button id="logout-btn" class="btn-ghost btn-sm">Logout</button>
+    </div>
+  </aside>
+
+  <!-- Mobile header -->
+  <div class="mobile-header">
+    <button id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Menu">☰</button>
+    <span class="logo-text">SnapWed</span>
+    <div></div>
+  </div>
+
+  <!-- Content area -->
+  <main class="content" id="content">
+
+    <!-- ─── Events View ───────────────────────────────────────────────────── -->
+    <div id="view-events" class="view active">
+      <div class="view-header">
+        <div>
+          <h2 class="view-title">Your Events</h2>
+          <p class="view-sub">Manage all your wedding photo albums</p>
+        </div>
+        <button class="btn-primary" id="new-event-btn">+ New Event</button>
+      </div>
+
+      <div id="events-grid" class="events-grid">
+        <div class="loader-wrap"><div class="loader-ring"></div></div>
+      </div>
+    </div>
+
+    <!-- ─── Event Detail View ─────────────────────────────────────────────── -->
+    <div id="view-event-detail" class="view">
+      <div class="view-header">
+        <div>
+          <button class="back-btn" id="back-btn">← All Events</button>
+          <h2 class="view-title" id="detail-title">Event Name</h2>
+          <p class="view-sub" id="detail-sub">Loading…</p>
+        </div>
+        <div class="detail-header-actions">
+          <a id="view-gallery-btn" href="#" target="_blank" class="btn-outline">View Gallery ↗</a>
+          <a id="view-upload-btn" href="#" target="_blank" class="btn-outline">Upload Page ↗</a>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="qr" role="tab" aria-selected="true">QR Code</button>
+        <button class="tab" data-tab="photos" role="tab">Photos</button>
+        <button class="tab" data-tab="guestbook" role="tab">Guestbook</button>
+      </div>
+
+      <!-- QR Tab -->
+      <div id="tab-qr" class="tab-panel active">
+        <div class="qr-card">
+          <div class="qr-wrap">
+            <img id="qr-image" src="" alt="QR Code" class="qr-img" />
+            <div class="qr-shimmer" id="qr-loading"></div>
+          </div>
+          <div class="qr-info">
+            <h3>Guest Upload QR Code</h3>
+            <p class="qr-desc">Display this at your venue. Guests scan it with their phone camera to instantly upload photos.</p>
+            <div class="qr-url-wrap">
+              <input type="text" id="qr-url-display" readonly class="url-input" />
+              <button id="copy-url-btn" class="btn-outline btn-sm">Copy</button>
+            </div>
+            <div class="qr-actions">
+              <a id="download-qr-btn" href="#" download="snapwed-qr.png" class="btn-primary">⬇ Download QR</a>
+              <a id="print-qr-btn" href="#" class="btn-outline" onclick="window.print();return false">🖨️ Print</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photos Tab -->
+      <div id="tab-photos" class="tab-panel">
+        <div class="tab-toolbar">
+          <p id="photos-count" class="count-label">Loading…</p>
+        </div>
+        <div id="photos-grid" class="masonry-grid">
+          <div class="loader-wrap"><div class="loader-ring"></div></div>
+        </div>
+      </div>
+
+      <!-- Guestbook Tab -->
+      <div id="tab-guestbook" class="tab-panel">
+        <div id="guestbook-list" class="guestbook-list">
+          <div class="loader-wrap"><div class="loader-ring"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══ NEW EVENT MODAL ════════════════════════════════════════════════════ -->
+<div id="event-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Create event">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title">Create New Event</h3>
+      <button class="modal-close" id="modal-close-btn" aria-label="Close">✕</button>
+    </div>
+    <form id="event-form">
+      <input type="hidden" id="event-id-input" />
+      <div class="form-row">
+        <div class="field-group">
+          <label for="event-name">Event Name *</label>
+          <input type="text" id="event-name" placeholder="e.g. Johnson Wedding" required maxlength="80" />
+        </div>
+        <div class="field-group">
+          <label for="couple-names">Couple Names *</label>
+          <input type="text" id="couple-names" placeholder="e.g. Sarah & Michael" required maxlength="80" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field-group">
+          <label for="event-date">Wedding Date</label>
+          <input type="date" id="event-date" />
+        </div>
+        <div class="field-group">
+          <label for="cover-color">Accent Color</label>
+          <div class="color-pick-row">
+            <input type="color" id="cover-color" value="#e8749a" class="color-input" />
+            <span id="color-label">#e8749a</span>
+          </div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="welcome-msg">Welcome Message</label>
+        <textarea id="welcome-msg" rows="2" maxlength="200" placeholder="Scan to share your photos! 📸"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" id="modal-cancel-btn">Cancel</button>
+        <button type="submit" class="btn-primary" id="modal-submit-btn">Create Event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/admin/app.js"></script>
+</body>
+</html>

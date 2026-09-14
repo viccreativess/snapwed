@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Gallery — SnapWed</title>
+  <meta name="description" content="Browse all wedding photos shared by guests." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/gallery/style.css" />
+</head>
+<body>
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button id="lb-close" class="lb-close" aria-label="Close">✕</button>
+    <button id="lb-prev" class="lb-nav lb-prev" aria-label="Previous">‹</button>
+    <div class="lb-img-wrap">
+      <img id="lb-img" src="" alt="Wedding photo" />
+    </div>
+    <button id="lb-next" class="lb-nav lb-next" aria-label="Next">›</button>
+    <div class="lb-info">
+      <span id="lb-counter"></span>
+      <a id="lb-download" href="#" download class="lb-download-btn">⬇ Download</a>
+    </div>
+  </div>
+
+  <div id="app">
+    <header class="gallery-header">
+      <div class="couple-badge">
+        <span class="heart">♥</span>
+        <span id="couple-names">Loading…</span>
+      </div>
+      <h1 id="gallery-title" class="gallery-title">Our Wedding Gallery</h1>
+      <p id="photo-count" class="photo-count">Loading photos…</p>
+      <a id="upload-link" href="#" class="header-upload-btn">📷 Add Your Photos</a>
+    </header>
+
+    <div id="loading" class="gallery-loading">
+      <div class="loader-ring"></div>
+    </div>
+
+    <div id="gallery-empty" class="gallery-empty hidden">
+      <div class="empty-icon">📷</div>
+      <p>No photos yet — be the first to share!</p>
+      <a id="empty-upload-link" href="#" class="upload-btn">Share Photos</a>
+    </div>
+
+    <div id="masonry-grid" class="masonry-grid"></div>
+
+    <footer class="gallery-footer">
+      <p>Powered by <strong>SnapWed</strong> ✨</p>
+    </footer>
+  </div>
+
+  <script src="/gallery/app.js"></script>
+</body>
+</html>
