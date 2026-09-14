@@ -61,10 +61,11 @@ body {
 /* ─── Loader ─────────────────────────────────────────────────────────────── */
 #loading-screen {
   min-height: 100dvh;
-  display: flex !important;
+  display: none;
   align-items: center;
   justify-content: center;
 }
+#loading-screen.active { display: flex; }
 .loader-ring {
   width: 48px; height: 48px;
   border: 4px solid var(--rose-light);
