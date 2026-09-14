@@ -71,8 +71,9 @@ function isConnected() {
 
 async function ensureFolder(folderName, parentId = null) {
   const drive = getDrive();
+  const escapedName = folderName.replace(/'/g, "\\'");
   const query = [
-    `name = '${folderName}'`,
+    `name = '${escapedName}'`,
     `mimeType = 'application/vnd.google-apps.folder'`,
     `trashed = false`,
     parentId ? `'${parentId}' in parents` : `'root' in parents`,
